@@ -1,0 +1,20 @@
+        table {
+              width: 100%; /* Ширина таблицы */
+              border-collapse: collapse; /* Убираем двойные линии между ячейками */
+        }
+        .selected { background-color:#D3D3D3; }
+        .selected td { border: solid black 1px; }
+        td, th {
+               padding: 3px; /* Поля вокруг содержимого таблицы */
+               border: 1px solid #000; /* Параметры рамки */
+        }
+        th {
+           background: #FFEBCD; /* Цвет фона */
+           color: #333;  /* Цвет текста */
+        }
+        tbody tr:hover {
+                       background: #D3D3D3; /* Цвет фона при наведении */
+                       color: #fff; /* Цвет текста при наведении */
+        }
+
+

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block app_content %}
+<!--
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <h1>Контрагенты</h1>
+    <table border="1">
+        <caption>Таблица контрагентов</caption>
+        <tr>
+            <th>id</th>
+            <th>Наименование</th>
+            <th>ИНН</th>
+            <th>КПП</th>
+            <th>e-mail</th>
+        </tr>
+        {% for org in org %}
+            <tr>
+                <td>{{ org.id }}</td>
+                <td>{{ org.fullname }}</td>
+                <td>{{ org.inn }}</td>
+                <td>{{ org.kpp }}</td>
+                <td>{{ org.email }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('add_org') }}">Добавить</a>
+    --!>
+<script src="/static/scripts/jquery-3.6.0.js"></script>
+<link rel="stylesheet" href="/static/context_menu.css">
+
+<script language=javascript>
+    var selected_row = null;
+        selected_id = null;
+        selected_name = null;
+    function select_row(row)
+    {
+      if(selected_row != null) selected_row.className = '';
+      selected_row = row;
+      if(selected_row != null) {
+        selected_row.className = 'selected';
+        selected_id = row.cells[0].innerHTML;
+        selected_name = row.cells[1].innerHTML+ ", ИНН "+row.cells[2].innerHTML;
+        document.getElementById("del_id").value = selected_id;
+        document.getElementById("del_button").disabled = false;
+        document.getElementById("alert_text").innerHTML = "Удалить организацию "+selected_name;
+      }
+    }
+    function check_hide()
+    {
+        if (selected_id == null) {
+            document.getElementById("del_button").disabled = true;
+        }
+    }
+</script>
+<style>.selected { background-color:#D3D3D3; }</style>
+<style>th {cursor: pointer;}</style>
+
+<h3 class="sub-header">Контрагенты</h3>
+<div class="table-responsive">
+  <input class="form-control" id="myInput" type="text" placeholder="Поиск.." onkeyup="hide()">
+  <br>
+    <input type="button" id="delete_filter" class="btn btn-primary" value="Удалить фильтр" onclick="delete_filter()">
+    <table class="table table-hover">
+        <thead>
+        <tr id="header">
+            <th onclick="sortTable(0)">id</th>
+            <th onclick="sortTable(1)">Наименование</th>
+            <th onclick="sortTable(2)">ИНН</th>
+            <th onclick="sortTable(3)">КПП</th>
+            <th onclick="sortTable(4)">e-mail</th>
+            <!--
+            <th>Действия</th>
+            --!>
+        </tr>
+        </thead>
+        <tbody id="myTable">
+        {% for org in org %}
+        <tr onclick='select_row(this)' ondblclick="location.href = '{{url_for('edit_org', e_id = org.id )}}'">
+            <td class="task1">{{ org.id }}</td>
+            <td class="task1">{{ org.fullname }}</td>
+            <td class="task1">{{ org.inn }}</td>
+            <td class="task1">{{ org.kpp }}</td>
+            <td class="task1">{{ org.email }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+   <!-- <INPUT TYPE=button VALUE=" Показать ID " LANGUAGE="Javascript" onclick="alert(selected_id)"> --!>
+
+    <input type="button" class="btn btn-primary" value="Добавить" onClick='location.href="{{ url_for('add_org') }}"'>
+    <button type="button" class="btn btn-danger" disabled="true" id="del_button"
+            data-toggle="modal" data-target="#exampleModal" onmousemove='check_hide()'>Удалить</button>
+</div>
+
+<!--    Скрипты поисковой строки    --!>
+<script language=javascript>
+    function hide()
+        {
+        document.getElementById("del_button").disabled = true;
+        document.getElementById("edit_button").disabled = true;
+        selected_id = null;
+        selected_row = null;
+        }
+</script>
+
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $('#myTable tr').removeClass('selected');
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+<!--      $(this).toggle($(this.cells[1]).text().toLowerCase().indexOf(value) > -1)-->
+    });
+  });
+});
+
+
+  function delete_filter(){
+      $("#delete_filter").on("click", function() {
+        $('#myTable tr').removeClass('selected');
+        $("#myTable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf("") > -1)
+        });
+      });
+  }
+
+
+</script>
+
+<!--    Скрипт сортировки при нажатии на заголовок    --!>
+<script>
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("myTable");
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc";
+  /*Make a loop that will continue until
+  no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /*Loop through all table rows (except the
+    first, which contains table headers):*/
+    for (i = 0; i < (rows.length - 1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare,
+      one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /*check if the two rows should switch place,
+      based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch
+      and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /*If no switching has been done AND the direction is "asc",
+      set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+</script>
+
+<!-- Modal window-->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Удаление строки</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="alert_text">
+        Удалить организацию?
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="{{ url_for('delete_org') }}">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+            <input type="hidden" name="del_id" id="del_id">
+            <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Контекстное меню-->
+<nav id="context-menu" class="context-menu">
+    <ul class="context-menu__items">
+        <li class="context-menu__item">
+            <a href="{{ url_for('add_org') }}" class="context-menu__link"><i class="fa fa-eye"></i> Добавить</a>
+        </li>
+        <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-action="Edit"><i class="fa fa-edit"></i> Редактировать</a>
+        </li>
+        <li class="context-menu__item">
+            <a href="#" class="context-menu__link" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-times"></i> Удалить</a>
+        </li>
+        <li class="context-menu__item">
+            <a href="#" class="context-menu__link" id="context_find"><i class="fa fa-times"></i> Найти</a>
+        </li>
+    </ul>
+</nav>
+<script src="/static/scripts/context_menu.js"></script>
+
+{% endblock %}
